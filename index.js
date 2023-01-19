@@ -80,10 +80,14 @@ const jsonData = JSON.parse(data);
 //   console.log(`🚀  Server ready at: ${url}`);
 // })();
 app.get("/", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*")
+  console.log("nsfesfgu 444444")
+
   res.send("Heelo world");
 });
 
 app.get("/users", (req, res) => {
+  console.log("nsfesfgu 3333")
   const schema = {
     email: Joi.string().required(),
     password: Joi.string().required(),
@@ -96,23 +100,34 @@ app.get("/users", (req, res) => {
   const data = jsonData.map(
     (js) => js.email === req.body.email && js.password == req.body.password
   );
-  if (data.length) res.send(data[0]);
-  else res.status(400).send("User Not Found!");
+  if (data.length) {
+    res.header("Access-Control-Allow-Origin", "*")
+    res.send(data[0]);
+  }
+  else {
+    res.header("Access-Control-Allow-Origin", "*")
+    res.status(400).send("User Not Found!")
+  }
 });
 
 app.get("/users/:id", (req, res) => {
+  console.log("nsfesfgu 2222")
+
   const user = jsonData.find((us) => us.id == req.params.id);
   if (!user) res.status(404).send("the user with given id doesn't exist");
   res.send(user);
 });
 
 app.post("/users", (req, res) => {
+  console.log("nsfesfgu 1111", req.body)
   const schema = {
     email: Joi.string().required(),
     password: Joi.string().required(),
   };
   const result = Joi.validate(req.body, schema);
+  // console.log("first", result)
   if (result.error) {
+    res.header("Access-Control-Allow-Origin", "*")
     res.status(400).send("Email and password required");
     return;
   }
@@ -121,10 +136,12 @@ app.post("/users", (req, res) => {
     email: req.body.email,
     password: req.body.password,
   };
+  console.log(obj, "obj")
   var payload = [...jsonData, obj];
   fs.writeFileSync("data.json", JSON.stringify(payload), function (err) {
     console.log(err, "error occured in add User");
   });
+  res.header("Access-Control-Allow-Origin", "*")
   res.send(obj);
 });
 
