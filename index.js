@@ -1,11 +1,39 @@
 // const { ApolloServer } = require("@apollo/server");
 // const { startStandaloneServer } = require("@apollo/server/standalone");
+const cors = require("cors");
 var fs = require("fs");
 const express = require("express");
 const app = express();
 const Joi = require("joi");
+const bodyParser = require("body-parser");
 app.use(express.json());
+app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+app.use(cors()); // disable cors policy
 
+app.use(express.static("public"));
+// // Add headers before the routes are defined
+app.use(function (req, res, next) {
+  // Website you wish to allow to connect
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  // Request methods you wish to allow
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST");
+  // Request headers you wish to allow
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With,content-type"
+  );
+  // Set to true if you need the website to include cookies in the requests sent
+  // to the API (e.g. in case you use sessions)
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  // Pass to next layer of middleware
+  next();
+});
 // const typeDefs = `#graphql
 //   type User {
 //     id:Int
@@ -80,14 +108,14 @@ const jsonData = JSON.parse(data);
 //   console.log(`🚀  Server ready at: ${url}`);
 // })();
 app.get("/", (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*")
-  console.log("nsfesfgu 444444")
+  res.header("Access-Control-Allow-Origin", "*");
+  console.log("nsfesfgu 444444");
 
   res.send("Heelo world");
 });
 
 app.get("/users", (req, res) => {
-  console.log("nsfesfgu 3333")
+  console.log("nsfesfgu 3333", req.body);
   const schema = {
     email: Joi.string().required(),
     password: Joi.string().required(),
@@ -101,17 +129,16 @@ app.get("/users", (req, res) => {
     (js) => js.email === req.body.email && js.password == req.body.password
   );
   if (data.length) {
-    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Origin", "*");
     res.send(data[0]);
-  }
-  else {
-    res.header("Access-Control-Allow-Origin", "*")
-    res.status(400).send("User Not Found!")
+  } else {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.status(400).send("User Not Found!");
   }
 });
 
 app.get("/users/:id", (req, res) => {
-  console.log("nsfesfgu 2222")
+  console.log("nsfesfgu 2222");
 
   const user = jsonData.find((us) => us.id == req.params.id);
   if (!user) res.status(404).send("the user with given id doesn't exist");
@@ -119,7 +146,7 @@ app.get("/users/:id", (req, res) => {
 });
 
 app.post("/users", (req, res) => {
-  console.log("nsfesfgu 1111", req.body)
+  console.log("nsfesfgu 1111", req.body);
   const schema = {
     email: Joi.string().required(),
     password: Joi.string().required(),
@@ -127,7 +154,7 @@ app.post("/users", (req, res) => {
   const result = Joi.validate(req.body, schema);
   // console.log("first", result)
   if (result.error) {
-    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Origin", "*");
     res.status(400).send("Email and password required");
     return;
   }
@@ -136,12 +163,12 @@ app.post("/users", (req, res) => {
     email: req.body.email,
     password: req.body.password,
   };
-  console.log(obj, "obj")
+  console.log("obj");
   var payload = [...jsonData, obj];
   fs.writeFileSync("data.json", JSON.stringify(payload), function (err) {
     console.log(err, "error occured in add User");
   });
-  res.header("Access-Control-Allow-Origin", "*")
+  res.header("Access-Control-Allow-Origin", "*");
   res.send(obj);
 });
 
